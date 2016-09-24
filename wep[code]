@@ -1,0 +1,512 @@
+// CoDaM WEPMOD
+// Author: ^x t r'Silley*
+// MODLIST:
+// [[ register ]]( "SilleY's-wep_mod", codam\wep::main);  
+// MYSERVER:
+// set scr_wep_mod "1" 
+
+main( phase, register )
+{
+	codam\utils::debug( 0, "======== wep_mod/main:: |", phase, "|", register, "|" );
+
+	if ( !codam\utils::getVar( "scr", "wep_mod", "bool", 1|2, false ) )
+		return;
+        
+	switch ( phase )
+	{
+	  case "init":		_init( register );	break;
+	  case "load":		_load();		break;
+	  case "start":	  	_start();		break;
+	}
+
+	return;
+}
+
+_init( register )
+{
+	codam\utils::debug( 0, "======== wep_mod/_init:: |", register, "|" );
+    
+[[ register ]](    "spawnPlayer", ::wepck, "thread" );
+
+	return;
+}
+
+_load()
+{
+	codam\utils::debug( 0, "======== wep_mod/_load" );
+	
+	precacheString(&"Mosin Nagant");
+	precacheString(&"Kar98k");
+	precacheString(&"Mosin Scope");
+	precacheString(&"Kar98k Scope");
+	precacheString(&"Springfield");
+	precacheString(&"Enfield");
+	precacheString(&"Press ^1F ^7to choose.");
+	precacheString(&"Press ^2Fire ^7to select.");
+	self.pers["wepl"]=0;
+	return;
+}
+
+_start()
+{
+	codam\utils::debug( 0, "======== wep_mod/_start" );
+
+	return;
+}
+
+//
+///////////////////////////////////////////////////////////////////////////////
+wepck(){
+if ( level.ham_g_gametype == "sd" )
+		{
+			
+			self thread wepl();
+		}}
+wepl()
+{
+	
+weps = codam\utils::findStr(self.name, getcvar("store_wep"), "0");
+self.pers["wepl"]=0;
+
+if(weps==-1)		
+{
+	self thread weph();
+	self thread wepcl();
+	wait 1;
+	self.pers["wepl"]=0;
+    str = getcvar("store_wep") + self.name;
+	setcvar("store_wep", str);	
+	//self iprintln("ch");	
+	return;
+
+	
+}
+else if(weps!=-1)
+//self iprintln("NONONO");	
+self thread wepw();
+return;
+}
+wepw()
+{
+	self iprintln("Press use button to get wep menu again within 5secs!");
+	for(i=0;i<50;i++)
+	{
+        wait .1;  
+//self iprintln(""+i);		
+        if(self useButtonPressed() == true)
+		{
+		self thread weph();
+		self thread wepcl();
+		wait 1;
+		self.pers["wepl"]=0;
+		return;
+		}
+        while(self useButtonPressed() == true)
+            wait.001;                                        
+ 
+        if (self.pers["wepl"]==1)
+            return;
+	}
+
+	return;
+}
+	
+	
+	
+	
+	
+
+
+wepcl() 
+{
+    self.vote_indicator = newClientHudElem( self );
+    self.vote_indicator.alignX = "center";
+    self.vote_indicator.alignY = "middle";
+    self.vote_indicator.x = 335;
+
+    self.vote_indicator.archived = false;
+    self.vote_indicator.sort = 9998;
+    self.vote_indicator.alpha = .01;
+
+    self.vote_indicator setShader("white", 254, 17);
+	
+
+	
+	self thread wepas();
+	
+    for (;;)
+    {	
+        wait .01;                                
+        if(self useButtonPressed() == true)
+        {
+            self.votechoice++;
+			
+            if (self.votechoice == 7)
+                self.votechoice = 1;
+            if (self.votechoice == 1 || self.votechoice == undefined || self.votechoice==0)
+            {
+               
+                self.vote_indicator.y = 106.5;    
+                self.vote_indicator.color = (1  ,  .128,  .64);
+                self.vote_indicator.alpha = .7;
+				
+			}
+            if (self.votechoice == 2)
+            {
+                
+                self.vote_indicator.y = 122.5;
+                self.vote_indicator.color = (0  ,0.5,  1);
+                self.vote_indicator.alpha = .7;
+            }
+            if (self.votechoice == 3)
+            {
+                
+                self.vote_indicator.y = 138;
+                self.vote_indicator.color = (0  ,  1,  1);
+                self.vote_indicator.alpha = .7;
+            }
+            if (self.votechoice == 4)
+            {
+                
+                self.vote_indicator.y =153 ;
+                self.vote_indicator.color = (0  ,  1,  0);
+                self.vote_indicator.alpha = .7;
+            }
+            if (self.votechoice == 5)
+            {
+                
+                self.vote_indicator.y =169.5 ;
+                self.vote_indicator.color = (1  ,  0,  1);
+                self.vote_indicator.alpha = .7;
+            }
+			if (self.votechoice == 6)
+            {
+                
+                self.vote_indicator.y =185 ;
+                self.vote_indicator.color = (1  ,  1,  0);
+                self.vote_indicator.alpha = .7;
+            }
+            self playLocalSound("hq_score");
+        }                    
+        while(self useButtonPressed() == true)
+            wait.001;                                        
+ 
+        if (self.pers["wepl"]==1)
+            return;
+    }
+    return;
+}
+
+weph()
+{
+	self iprintln("You should must choose a wep to remove this hud^1!");
+	
+    self.vote_hud_bgnd = newClientHudElem(self);
+    self.vote_hud_bgnd.archived = false;
+    self.vote_hud_bgnd.alpha = .7;
+    self.vote_hud_bgnd.x = 205;
+    self.vote_hud_bgnd.y = 47;
+    self.vote_hud_bgnd.sort = 9000;
+    self.vote_hud_bgnd.color = (0,0,0);
+    self.vote_hud_bgnd setShader("white", 260, 151);
+ 
+    self.vote_leftline = newClientHudElem(self);
+    self.vote_leftline.archived = false;
+    self.vote_leftline.alpha = .3;
+    self.vote_leftline.x = 207;
+    self.vote_leftline.y =  49;
+    self.vote_leftline.sort = 9001;
+    self.vote_leftline setShader("white", 1, 147);
+ 
+    self.vote_rightline = newClientHudElem(self);
+    self.vote_rightline.archived = false;
+    self.vote_rightline.alpha = .3;
+    self.vote_rightline.x = 462;
+    self.vote_rightline.y = 49;
+    self.vote_rightline.sort = 9001;
+    self.vote_rightline setShader("white", 1, 147);
+ 
+    self.vote_bottomline = newClientHudElem(self);
+    self.vote_bottomline.archived = false;
+    self.vote_bottomline.alpha = .3;
+    self.vote_bottomline.x = 207;
+    self.vote_bottomline.y = 196;
+    self.vote_bottomline.sort = 9001;
+    self.vote_bottomline setShader("white", 256, 1);
+ 
+    self.vote_header = newClientHudElem(self);
+    self.vote_header.archived = false;
+    self.vote_header.alpha = .3;
+    self.vote_header.x = 208;
+    self.vote_header.y = 49;
+    self.vote_header.sort = 9001;
+    self.vote_header setShader("white", 254, 21);
+ 
+
+ 
+    self.vote_hud_instructions = newClientHudElem(self);
+    self.vote_hud_instructions.archived = false;
+    self.vote_hud_instructions.x = 335;
+    self.vote_hud_instructions.y = 59;
+    self.vote_hud_instructions.sort = 9998;
+    self.vote_hud_instructions.fontscale = 1;
+    self.vote_hud_instructions.label =&"Press ^1F ^7to choose.";
+    self.vote_hud_instructions.alignX = "center";
+    self.vote_hud_instructions.alignY = "middle";
+	
+	self.vote_hud_instructions1 = newClientHudElem(self);
+    self.vote_hud_instructions1.archived = false;
+    self.vote_hud_instructions1.x = 335;
+    self.vote_hud_instructions1.y = 75;
+    self.vote_hud_instructions1.sort = 9998;
+    self.vote_hud_instructions1.fontscale = 1;
+    self.vote_hud_instructions1.label =&"Press ^2Fire ^7to select.";
+    self.vote_hud_instructions1.alignX = "center";
+    self.vote_hud_instructions1.alignY = "middle";
+ 
+
+ 
+    self.vote_map1 = newClientHudElem(self);
+    self.vote_map1.archived = false;
+    self.vote_map1.x = 210;
+    self.vote_map1.y = 30 + 69;
+    self.vote_map1.sort = 9998;
+	self.vote_map1.label = &"Mosin Nagant";
+ 
+    self.vote_map2 = newClientHudElem(self);
+    self.vote_map2.archived = false;
+    self.vote_map2.x = 210;
+    self.vote_map2.y = 30 + 85;
+    self.vote_map2.sort = 9998;
+	self.vote_map2.label = &"Kar98k";
+ 
+    self.vote_map3 = newClientHudElem(self);
+    self.vote_map3.archived = false;
+    self.vote_map3.x = 210;
+    self.vote_map3.y = 30+ 101;
+    self.vote_map3.sort = 9998; 
+	self.vote_map3.label = &"Mosin Scope";	
+ 
+    self.vote_map4 = newClientHudElem(self);
+    self.vote_map4.archived = false;
+    self.vote_map4.x = 210;
+    self.vote_map4.y = 30+ 117;
+    self.vote_map4.sort = 9998;    
+	self.vote_map4.label = &"Kar98k Scope";
+ 
+    self.vote_map5 = newClientHudElem(self);
+    self.vote_map5.archived = false;
+    self.vote_map5.x = 210;
+    self.vote_map5.y = 30 + 133;
+    self.vote_map5.sort = 9998; 
+	self.vote_map5.label = &"Springfield";	
+	
+	self.vote_map6 = newClientHudElem(self);
+    self.vote_map6.archived = false;
+    self.vote_map6.x = 210;
+    self.vote_map6.y = 30 + 149;
+    self.vote_map6.sort = 9998; 
+	self.vote_map6.label = &"Enfield";	
+ 
+
+}
+
+wepas(){
+	
+	weapon2 = self getweaponslotweapon("primaryb");
+	weapon3 = self getweaponslotweapon("pistol");
+	weapon4 = self getweaponslotweapon("grenade");
+	
+	ammo2 = self getweaponslotammo("primaryb");
+	ammo3 = self getweaponslotammo("pistol");
+	ammo4 = self getweaponslotammo("grenade");
+	
+	
+	cammo2 = self getweaponslotclipammo("primaryb");
+	cammo3 = self getweaponslotclipammo("pistol");
+	cammo4 = self getweaponslotclipammo("grenade");	
+	for( ;; )
+	{
+		wait 0.01;
+		if(self attackButtonPressed() == true)
+		{
+            if (self.votechoice == 1)
+            {		
+
+				self takeallweapons();
+				self giveweapon("mosin_nagant_mp");
+				self switchtoweapon("mosin_nagant_mp");
+				self givemaxammo("mosin_nagant_mp");
+				self thread wepst();
+				
+						self setweaponslotweapon("primaryb", weapon2);
+		self setweaponslotweapon("pistol", weapon3);
+		self setweaponslotweapon("grenade", weapon4);
+		
+		self setweaponslotammo("primaryb", ammo2);
+		self setweaponslotammo("pistol", ammo3);
+		self setweaponslotammo("grenade", ammo4);
+		
+		self setweaponslotclipammo("primaryb", cammo2);
+		self setweaponslotclipammo("pistol", cammo3);
+		self setweaponslotclipammo("grenade", cammo4);
+				
+				
+			}
+            if (self.votechoice == 2)
+            {
+                
+				self takeallweapons();
+				self giveweapon("kar98k_mp");
+				self switchtoweapon("kar98k_mp");
+				self givemaxammo("kar98k_mp");
+				self thread wepst();
+				
+						self setweaponslotweapon("primaryb", weapon2);
+		self setweaponslotweapon("pistol", weapon3);
+		self setweaponslotweapon("grenade", weapon4);
+		
+		self setweaponslotammo("primaryb", ammo2);
+		self setweaponslotammo("pistol", ammo3);
+		self setweaponslotammo("grenade", ammo4);
+		
+		self setweaponslotclipammo("primaryb", cammo2);
+		self setweaponslotclipammo("pistol", cammo3);
+		self setweaponslotclipammo("grenade", cammo4);
+            }
+            if (self.votechoice == 3)
+            {
+                
+				self takeallweapons();
+				self giveweapon("mosin_nagant_sniper_mp");
+				self switchtoweapon("mosin_nagant_sniper_mp");
+				self givemaxammo("mosin_nagant_sniper_mp");
+				self thread wepst();
+				
+						self setweaponslotweapon("primaryb", weapon2);
+		self setweaponslotweapon("pistol", weapon3);
+		self setweaponslotweapon("grenade", weapon4);
+		
+		self setweaponslotammo("primaryb", ammo2);
+		self setweaponslotammo("pistol", ammo3);
+		self setweaponslotammo("grenade", ammo4);
+		
+		self setweaponslotclipammo("primaryb", cammo2);
+		self setweaponslotclipammo("pistol", cammo3);
+		self setweaponslotclipammo("grenade", cammo4);
+            }
+            if (self.votechoice == 4)
+            {
+               
+				self takeallweapons();
+				self giveweapon("kar98k_sniper_mp");
+				self switchtoweapon("kar98k_sniper_mp");
+				self givemaxammo("kar98k_sniper_mp");
+				self thread wepst();
+				
+						self setweaponslotweapon("primaryb", weapon2);
+		self setweaponslotweapon("pistol", weapon3);
+		self setweaponslotweapon("grenade", weapon4);
+		
+		self setweaponslotammo("primaryb", ammo2);
+		self setweaponslotammo("pistol", ammo3);
+		self setweaponslotammo("grenade", ammo4);
+		
+		self setweaponslotclipammo("primaryb", cammo2);
+		self setweaponslotclipammo("pistol", cammo3);
+		self setweaponslotclipammo("grenade", cammo4);
+            }
+            if (self.votechoice == 5)
+            {
+                
+				self takeallweapons();
+				self giveweapon("springfield_mp");
+				self switchtoweapon("springfield_mp");
+				self givemaxammo("springfield_mp");
+				self thread wepst();
+				
+						self setweaponslotweapon("primaryb", weapon2);
+		self setweaponslotweapon("pistol", weapon3);
+		self setweaponslotweapon("grenade", weapon4);
+		
+		self setweaponslotammo("primaryb", ammo2);
+		self setweaponslotammo("pistol", ammo3);
+		self setweaponslotammo("grenade", ammo4);
+		
+		self setweaponslotclipammo("primaryb", cammo2);
+		self setweaponslotclipammo("pistol", cammo3);
+		self setweaponslotclipammo("grenade", cammo4);
+            }
+			if (self.votechoice == 6)
+            {
+                
+				self takeallweapons();
+				self giveweapon("enfield_mp");
+				self switchtoweapon("enfield_mp");
+				self givemaxammo("enfield_mp");
+				self thread wepst();
+				
+						self setweaponslotweapon("primaryb", weapon2);
+		self setweaponslotweapon("pistol", weapon3);
+		self setweaponslotweapon("grenade", weapon4);
+		
+		self setweaponslotammo("primaryb", ammo2);
+		self setweaponslotammo("pistol", ammo3);
+		self setweaponslotammo("grenade", ammo4);
+		
+		self setweaponslotclipammo("primaryb", cammo2);
+		self setweaponslotclipammo("pistol", cammo3);
+		self setweaponslotclipammo("grenade", cammo4);
+            }
+		}
+		 while(self attackButtonPressed() == true)
+            wait.001;                                        
+ 
+        if (self.pers["wepl"]==1)
+            return;
+}
+}
+
+
+wepst()
+{		
+			
+			
+		self setweaponslotweapon("primaryb", weapon2);
+		self setweaponslotweapon("pistol", weapon3);
+		self setweaponslotweapon("grenade", weapon4);
+		
+		self setweaponslotammo("primaryb", ammo2);
+		self setweaponslotammo("pistol", ammo3);
+		self setweaponslotammo("grenade", ammo4);
+		
+		self setweaponslotclipammo("primaryb", cammo2);
+		self setweaponslotclipammo("pistol", cammo3);
+		self setweaponslotclipammo("grenade", cammo4);
+
+
+	self.pers["wepl"]=1;
+	self.vote_map1 destroy();
+	self.vote_map2 destroy();
+	self.vote_map3 destroy();
+	self.vote_map4 destroy();
+	self.vote_map5 destroy();
+	self.vote_map6 destroy();
+	self.vote_hud_bgnd destroy();
+	self.vote_header destroy();
+	self.vote_leftline destroy();
+	self.vote_rightline destroy();
+	self.vote_bottomline destroy();
+	self.vote_indicator destroy();
+	self.vote_hud_instructions destroy();
+	self.vote_hud_instructions1 destroy();
+wait 1;
+primary = self getWeaponSlotWeapon( "primary" );
+self.pers[ "weapon" ] = primary;
+	
+	
+self thread codam\GameTypes\_sd::saveWeapons();
+	
+	
+	
+}
