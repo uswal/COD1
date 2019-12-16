@@ -1,5 +1,5 @@
 /****************************************************
- * xtylizer.webs.com - Author: SilleY				
+ * xtylizer.webs.com - Author: Ujjwal			
  *
  *    #    # ######## ######
  *     #  #     #	  #    #
